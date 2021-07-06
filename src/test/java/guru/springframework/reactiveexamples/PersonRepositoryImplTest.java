@@ -8,6 +8,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class PersonRepositoryImplTest {
 
     PersonRepositoryImpl personRepository;
@@ -30,9 +32,7 @@ class PersonRepositoryImplTest {
     void getByIdSubscribe() {
         Mono<Person> personMono = personRepository.getById(1);
 
-        personMono.subscribe(person -> {
-            System.out.println(person.toString());
-        });
+        personMono.subscribe( person -> assertTrue(person.getFirstName().equals("Michael")));
     }
 
     @Test
@@ -44,9 +44,20 @@ class PersonRepositoryImplTest {
 
             return person.getFirstName();
         }).subscribe(firstName -> {
-            System.out.println("from map: " + firstName);
+           assertTrue(firstName.equals("Michael"));
         });
     }
+
+    @Test
+    void testFindMonoPersonByIdNotFoundWithException() {
+
+        final Integer id = 8;
+
+        Mono<Person> personMono = personRepository.getById(id);
+        personMono.doOnError(throwable -> {
+           Mono.empty();}).subscribe( emptyPerson -> assertTrue(emptyPerson.equals(Mono.empty())));
+     }
+
 
     @Test
     void fluxTestBlockFirst() {
