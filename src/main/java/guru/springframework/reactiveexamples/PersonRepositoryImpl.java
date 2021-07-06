@@ -16,7 +16,10 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Mono<Person> getById(Integer id) {
-        return Mono.just(michael);
+
+        Flux<Person> personFlux = findAll();
+        Mono<Person> personMono = personFlux.filter(person -> person.getId() == id).single();
+        return personMono;
     }
 
     @Override
